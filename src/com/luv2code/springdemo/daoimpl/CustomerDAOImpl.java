@@ -17,11 +17,21 @@ public class CustomerDAOImpl implements CustomerDAO {
 	@Autowired
 	private SessionFactory sessionFactory;
 
+	public SessionFactory getSessionFactory() {
+		return sessionFactory;
+	}
+
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
+	
+	private Session getSession() {
+		return this.sessionFactory.getCurrentSession();
+	}
+
 	@Override
 	public List<Customer> getCustomers() {
-		
-		Session currentSession = sessionFactory.getCurrentSession();
-		Query<Customer> theQuery = currentSession.createQuery("from Customer order by lastName", 
+		Query<Customer> theQuery = getSession().createQuery("from Customer order by lastName", 
 																Customer.class);
 		List<Customer> customers = theQuery.getResultList();
 		return customers;
@@ -29,8 +39,24 @@ public class CustomerDAOImpl implements CustomerDAO {
 
 	@Override
 	public void addCustomer(Customer theCustomer) {
-		Session currentSession = sessionFactory.getCurrentSession();
-		currentSession.save(theCustomer);
+		getSession().saveOrUpdate(theCustomer);
+	}
+
+	@Override
+	public Customer getCustomer(int theId) {
+		Customer theCustomer = getCustomerById(theId);
+		return theCustomer;
+	}
+
+	@Override
+	public void deleteCustomer(int theId) {
+		Customer theCustomer = getCustomerById(theId);
+		getSession().delete(theCustomer);
+	}
+
+	private Customer getCustomerById(int theId) {
+		Customer theCustomer = getSession().get(Customer.class, theId);
+		return theCustomer;
 	}
 
 }
